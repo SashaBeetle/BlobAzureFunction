@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "BlobAzureFunction": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7130",
+      "launchBrowser": false
+    }
+  }
+}
