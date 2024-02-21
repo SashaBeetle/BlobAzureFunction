@@ -12,10 +12,12 @@ namespace BlobAzureFunction
     public class BlobSendMail
     {
         private readonly ILogger _logger;
+        private readonly IConfiguration _configuration;
 
-        public BlobSendMail(ILoggerFactory loggerFactory)
+        public BlobSendMail(ILoggerFactory loggerFactory, IConfiguration configuration)
         {
             _logger = loggerFactory.CreateLogger<BlobSendMail>();
+            _configuration = configuration;
         }
 
         [Function("BlobSendMail")]
@@ -24,6 +26,7 @@ namespace BlobAzureFunction
             FunctionContext executionContext,
             System.Uri Uri)
         {
+
            
             var logger = executionContext.GetLogger("BlobSendMail");
 
@@ -32,7 +35,9 @@ namespace BlobAzureFunction
 
             logger.LogInformation($"Received email: {email[0]}");
 
-            var client = new SendGridClient("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");
+            string apiKeySendEmail = Environment.GetEnvironmentVariable("ApiKeySendEmail");
+
+            var client = new SendGridClient(apiKeySendEmail);
             var msg = new SendGridMessage()
             {
                 From = new EmailAddress("bot2112421234@gmail.com", "Bot"),
