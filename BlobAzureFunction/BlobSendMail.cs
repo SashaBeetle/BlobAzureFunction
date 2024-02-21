@@ -1,29 +1,56 @@
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage.Blob;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using System.IO;
+using System.Reflection.Metadata;
 
 namespace BlobAzureFunction
 {
     public class BlobSendMail
     {
+        private readonly ILogger _logger;
+
+        public BlobSendMail(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<BlobSendMail>();
+        }
+
         [Function("BlobSendMail")]
         public static async Task Run(
             [BlobTrigger("upload-files/{name}", Connection = "")]
-            string myBlob,
-            string name)
+            FunctionContext executionContext,
+            System.Uri Uri)
         {
-            var apiKey = Environment.GetEnvironmentVariable("SendGridApiKey");
-            var client = new SendGridClient(apiKey);
+           
+            var logger = executionContext.GetLogger("BlobSendMail");
+
+            string[] email = EmailReturn(Uri.ToString()); // email[0](Email), email[1](UserFileName)
+            logger.LogInformation("Trigger function during the process...");
+
+            logger.LogInformation($"Received email: {email[0]}");
+
+            var client = new SendGridClient("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");
             var msg = new SendGridMessage()
             {
                 From = new EmailAddress("bot2112421234@gmail.com", "Bot"),
                 Subject = "The Blob Form responce",
-                PlainTextContent = $"File: {name}",
+                PlainTextContent = $"File: {email[1]}",
                 HtmlContent = $"<strong>The file is successfully uploaded</strong>"
             };
-            msg.AddTo(new EmailAddress("farmgames153234@gmail.com", "Farmgames153234 Client"));
+            msg.AddTo(new EmailAddress($"{email[0]}", "Oleksandr Client"));
 
             var response = await client.SendEmailAsync(msg);
+
+            string[] EmailReturn(string uri)
+            {
+                string[] parts = uri.Split('/');
+                string[] part = parts[4].Split('|');
+
+                return part;
+            }
         }
     }
 }
