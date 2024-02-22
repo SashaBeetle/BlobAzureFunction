@@ -1,6 +1,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.Storage.Blob;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -11,17 +12,8 @@ namespace BlobAzureFunction
 {
     public class BlobSendMail
     {
-        private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
-
-        public BlobSendMail(ILoggerFactory loggerFactory, IConfiguration configuration)
-        {
-            _logger = loggerFactory.CreateLogger<BlobSendMail>();
-            _configuration = configuration;
-        }
-
         [Function("BlobSendMail")]
-        public static async Task Run(
+        public async Task Run(
             [BlobTrigger("upload-files/{name}", Connection = "")]
             FunctionContext executionContext,
             System.Uri Uri)
@@ -31,13 +23,14 @@ namespace BlobAzureFunction
             var logger = executionContext.GetLogger("BlobSendMail");
 
             string[] email = EmailReturn(Uri.ToString()); // email[0](Email), email[1](UserFileName)
-            logger.LogInformation("Trigger function during the process...");
+                logger.LogInformation("Trigger function during the process...");
 
-            logger.LogInformation($"Received email: {email[0]}");
+                logger.LogInformation($"Received email: {email[0]}");
 
             string apiKeySendEmail = Environment.GetEnvironmentVariable("ApiKeySendEmail");
 
             var client = new SendGridClient(apiKeySendEmail);
+                logger.LogInformation($"API was connected.");
             var msg = new SendGridMessage()
             {
                 From = new EmailAddress("bot2112421234@gmail.com", "Bot"),
@@ -46,8 +39,10 @@ namespace BlobAzureFunction
                 HtmlContent = $"<strong>The file is successfully uploaded</strong>"
             };
             msg.AddTo(new EmailAddress($"{email[0]}", "Oleksandr Client"));
+            logger.LogInformation($"Message has been built.");
 
             var response = await client.SendEmailAsync(msg);
+                logger.LogInformation($"Message has been send.\n Responce:"+response.StatusCode);
 
             string[] EmailReturn(string uri)
             {
