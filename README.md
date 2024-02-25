@@ -1,4 +1,5 @@
 # Blob Azure Function
+<sup>[Azure Blob Trigger](https://blobfunctionstask.azurewebsites.net) has cold start (Because my server has low activity), so message on your Email can arrive in the area of up to 5 hours</sup> 
 ### Project for Reenbit .Net Trainee Camp
 Contacts:
 * [Telegram](https://t.me/Sasha_Beetle) 
