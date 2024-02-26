@@ -17,9 +17,7 @@ namespace BlobAzureFunction
             [BlobTrigger("upload-files/{name}", Connection = "")]
             FunctionContext executionContext,
             System.Uri Uri)
-        {
-
-           
+        {     
             var logger = executionContext.GetLogger("BlobSendMail");
 
             string[] email = EmailReturn(Uri.ToString()); // email[0](Email), email[1](UserFileName)
@@ -36,7 +34,7 @@ namespace BlobAzureFunction
                 From = new EmailAddress("bot2112421234@gmail.com", "Bot"),
                 Subject = "The Blob Form responce",
                 PlainTextContent = $"File: {email[1]}",
-                HtmlContent = $"<strong>The file is successfully uploaded</strong>"
+                HtmlContent = $"<strong>The file is successfully uploaded</strong> (blobreactform.azurewebsites.net)"
             };
             msg.AddTo(new EmailAddress($"{email[0]}", "Oleksandr Client"));
             logger.LogInformation($"Message has been built.");
